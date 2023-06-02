@@ -10,11 +10,40 @@ function getParameterByName(name) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 };
 
-const fetchDataFromBackend = () => {
-  const response = fetch('http://localhost:5000/marker/getbyid/6476e7ea204f93edcb382785');
+const fetchDataFromBackend = (id, cb) => {
+  console.log('loading Data...');
+  const response = fetch('http://localhost:5000/marker/getbyid/'+id);
   response
     .then((res) => res.json())
-    .then((data) => {
-      console.log(data);
-    });
+    .then(cb);
+};
+
+const fetchVideoData = (videoid, cb) => {
+  console.log('loading video...');
+  const response = fetch('http://localhost:5000/video/getbyid/'+videoid);
+  response
+    .then((res) => res.json())
+    .then(cb);
+};
+
+// on window load
+window.onload = () => {
+  const arId = getParameterByName('ar');
+  console.log(arId);
+  const cam = document.querySelector('a-marker-camera');
+  const video = document.querySelector('a-video');
+  fetchDataFromBackend(arId, (data) => {
+    console.log(data);
+    fetchVideoData(data.video, (videoData) => {
+      console.log(videoData);
+      const patternUrl = `${url}/${data.pattern}`;
+      const videoUrl = `${url}/${videoData.video}`;
+      cam.setAttribute('url', patternUrl);
+      video.setAttribute('src', videoUrl);
+
+      const scene = document.querySelector('#myscene');
+    })
+  });
+
+
 };
